@@ -1,0 +1,1764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Career Stability Assessment</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #1a1a18;
+    --ink-mid: #4a4a47;
+    --ink-light: #8a8a85;
+    --ink-xlight: #c8c8c0;
+    --surface: #faf9f6;
+    --surface-card: #ffffff;
+    --border: #e4e3dc;
+    --accent: #1a3a2a;
+    --accent-mid: #2d6348;
+    --accent-light: #e8f2ec;
+    --risk-high: #8b2020;
+    --risk-high-bg: #fdf0f0;
+    --risk-med: #7a5c00;
+    --risk-med-bg: #fdf8e8;
+    --risk-low: #1a4a1a;
+    --risk-low-bg: #edf7ed;
+    --score-bar: #2d6348;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--surface);
+    color: var(--ink);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  .mode-switcher {
+    display: flex;
+    gap: 0;
+    background: var(--surface-card);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .mode-btn {
+    padding: 1rem 1.5rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    border: none;
+    background: transparent;
+    color: var(--ink-light);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    margin-bottom: -1px;
+  }
+
+  .mode-btn.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  .mode-btn:hover:not(.active) {
+    color: var(--ink-mid);
+  }
+
+  .mode-label {
+    padding: 1rem 1.5rem;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-xlight);
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+  }
+
+  /* ---- SCREEN MANAGEMENT ---- */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ---- ASSESSMENT FORM ---- */
+  .form-wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 3rem 2rem 5rem;
+  }
+
+  .form-header {
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent-mid);
+    margin-bottom: 0.75rem;
+  }
+
+  .form-header h1 {
+    font-family: 'Instrument Serif', serif;
+    font-size: 2.4rem;
+    font-weight: 400;
+    line-height: 1.2;
+    color: var(--ink);
+    margin-bottom: 1rem;
+  }
+
+  .form-header h1 em {
+    font-style: italic;
+    color: var(--accent-mid);
+  }
+
+  .form-header p {
+    font-size: 15px;
+    color: var(--ink-mid);
+    max-width: 560px;
+    line-height: 1.65;
+  }
+
+  /* Profile section */
+  .profile-section {
+    background: var(--surface-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    margin-bottom: 1.25rem;
+  }
+
+  .field-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .field-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+  .field-grid.full { grid-template-columns: 1fr; }
+
+  .field { display: flex; flex-direction: column; gap: 6px; }
+
+  .field label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink-mid);
+    letter-spacing: 0.02em;
+  }
+
+  .field input, .field select, .field textarea {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .field input:focus, .field select:focus, .field textarea:focus {
+    border-color: var(--accent-mid);
+  }
+
+  .field textarea { resize: vertical; min-height: 72px; }
+
+  /* Question sections */
+  .q-section {
+    margin-bottom: 2rem;
+  }
+
+  .q-section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 1.25rem;
+  }
+
+  .section-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .q-section-header h3 {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-mid);
+  }
+
+  .question-card {
+    background: var(--surface-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 0.75rem;
+    transition: border-color 0.15s;
+  }
+
+  .question-card:focus-within { border-color: var(--accent-mid); }
+
+  .q-text {
+    font-size: 15px;
+    color: var(--ink);
+    margin-bottom: 1rem;
+    line-height: 1.5;
+  }
+
+  .q-num {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink-xlight);
+    margin-bottom: 0.35rem;
+    letter-spacing: 0.04em;
+  }
+
+  .risk-flag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-left: 8px;
+    background: var(--risk-high-bg);
+    color: var(--risk-high);
+    vertical-align: middle;
+  }
+
+  .scale-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .scale-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--ink-light);
+    margin-bottom: 6px;
+    padding: 0 2px;
+  }
+
+  .scale-option {
+    display: none;
+  }
+
+  .scale-option + label {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink-mid);
+    cursor: pointer;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+
+  .scale-option + label:hover {
+    border-color: var(--accent-mid);
+    background: var(--accent-light);
+    color: var(--accent);
+  }
+
+  .scale-option:checked + label {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    font-weight: 600;
+  }
+
+  .scale-desc {
+    font-size: 12px;
+    color: var(--ink-light);
+    margin-left: 8px;
+    line-height: 1.4;
+  }
+
+  .submit-row {
+    margin-top: 2.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .btn-submit {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 14px 32px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .btn-submit:hover { background: var(--accent-mid); }
+
+  .submit-note {
+    font-size: 13px;
+    color: var(--ink-light);
+  }
+
+  .error-msg {
+    color: var(--risk-high);
+    font-size: 13px;
+    padding: 10px 14px;
+    background: var(--risk-high-bg);
+    border-radius: 8px;
+    display: none;
+    margin-top: 1rem;
+  }
+
+  /* ---- THANK YOU SCREEN ---- */
+  .thankyou-wrap {
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 6rem 2rem;
+    text-align: center;
+  }
+
+  .thankyou-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--accent-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 2rem;
+  }
+
+  .thankyou-icon svg { color: var(--accent-mid); }
+
+  .thankyou-wrap h2 {
+    font-family: 'Instrument Serif', serif;
+    font-size: 2rem;
+    font-weight: 400;
+    margin-bottom: 1rem;
+  }
+
+  .thankyou-wrap p {
+    font-size: 15px;
+    color: var(--ink-mid);
+    margin-bottom: 0.75rem;
+    line-height: 1.65;
+  }
+
+  /* ---- ADMIN RESULT SCREEN ---- */
+  .admin-wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 3rem 2rem 5rem;
+  }
+
+  .admin-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .admin-header h2 {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.8rem;
+    font-weight: 400;
+  }
+
+  .admin-header p { font-size: 13px; color: var(--ink-light); margin-top: 4px; }
+
+  .btn-copy {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 10px 20px;
+    background: var(--surface-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--ink-mid);
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .btn-copy:hover { background: var(--accent-light); border-color: var(--accent-mid); color: var(--accent); }
+
+  .result-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .result-card {
+    background: var(--surface-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem;
+  }
+
+  .result-card.full { grid-column: 1 / -1; }
+  .result-card.accent-card { border-color: var(--accent-mid); background: var(--accent-light); }
+
+  .result-card .rc-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    margin-bottom: 0.5rem;
+  }
+
+  .result-card .rc-value {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.2;
+  }
+
+  .result-card .rc-sub {
+    font-size: 13px;
+    color: var(--ink-mid);
+    margin-top: 4px;
+  }
+
+  .score-big {
+    font-family: 'Instrument Serif', serif;
+    font-size: 3.5rem;
+    font-weight: 400;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .risk-badge {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-top: 8px;
+  }
+
+  .risk-high-badge { background: var(--risk-high-bg); color: var(--risk-high); }
+  .risk-med-badge { background: var(--risk-med-bg); color: var(--risk-med); }
+  .risk-low-badge { background: var(--risk-low-bg); color: var(--risk-low); }
+  .risk-stable-badge { background: var(--accent-light); color: var(--accent); }
+
+  /* Score bars */
+  .dim-bars { display: flex; flex-direction: column; gap: 10px; }
+
+  .dim-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .dim-name {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink-mid);
+    width: 190px;
+    flex-shrink: 0;
+  }
+
+  .dim-bar-wrap {
+    flex: 1;
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .dim-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: var(--score-bar);
+    transition: width 0.6s ease;
+  }
+
+  .dim-bar-fill.risk-reverse { background: var(--risk-high); }
+
+  .dim-score {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink);
+    width: 36px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  /* Q answers detail */
+  .answers-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .answers-table th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .answers-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+    color: var(--ink-mid);
+    vertical-align: top;
+  }
+
+  .answers-table tr:last-child td { border-bottom: none; }
+
+  .answers-table td:first-child {
+    color: var(--ink-light);
+    font-size: 11px;
+    font-weight: 500;
+    width: 40px;
+  }
+
+  .answers-table td:nth-child(2) { color: var(--ink); width: 55%; }
+
+  .score-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .sp-1, .sp-2 { background: var(--risk-high-bg); color: var(--risk-high); }
+  .sp-3 { background: var(--risk-med-bg); color: var(--risk-med); }
+  .sp-4, .sp-5 { background: var(--risk-low-bg); color: var(--risk-low); }
+  .sp-r1, .sp-r2 { background: var(--risk-low-bg); color: var(--risk-low); }
+  .sp-r4, .sp-r5 { background: var(--risk-high-bg); color: var(--risk-high); }
+
+  .pattern-tag {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 20px;
+    background: #fdf0f0;
+    color: var(--risk-high);
+    margin-top: 6px;
+  }
+
+  /* ---- SNAPSHOT REVEAL ---- */
+  .reveal-wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 3rem 2rem 5rem;
+  }
+
+  .reveal-header {
+    margin-bottom: 2rem;
+  }
+
+  .reveal-header h2 {
+    font-family: 'Instrument Serif', serif;
+    font-size: 2rem;
+    font-weight: 400;
+    margin-bottom: 0.5rem;
+  }
+
+  .reveal-header p { font-size: 14px; color: var(--ink-mid); }
+
+  .paste-area {
+    background: var(--surface-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .paste-area label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    margin-bottom: 0.75rem;
+  }
+
+  .paste-area textarea {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    width: 100%;
+    min-height: 140px;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--ink);
+    outline: none;
+    resize: vertical;
+  }
+
+  .admin-loader {
+    background: var(--surface-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .admin-loader label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    margin-bottom: 0.5rem;
+  }
+
+  .admin-loader input,
+  .admin-loader select {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--ink);
+    margin-bottom: 0.8rem;
+  }
+
+  .loader-status {
+    font-size: 13px;
+    color: var(--ink-light);
+    margin-top: 0.75rem;
+  }
+
+  .btn-generate {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 12px 28px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-bottom: 2rem;
+  }
+
+  .btn-generate:hover { background: var(--accent-mid); }
+
+  /* Snapshot document */
+  .snapshot-doc {
+    display: none;
+    background: var(--surface-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .snapshot-doc.visible { display: block; }
+
+  .snap-topbar {
+    background: var(--accent);
+    color: #fff;
+    padding: 1.5rem 2rem;
+  }
+
+  .snap-topbar .snap-eyebrow {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.7;
+    margin-bottom: 0.35rem;
+  }
+
+  .snap-topbar h2 {
+    font-family: 'Instrument Serif', serif;
+    font-size: 1.75rem;
+    font-weight: 400;
+  }
+
+  .snap-topbar .snap-meta {
+    font-size: 12px;
+    opacity: 0.65;
+    margin-top: 4px;
+  }
+
+  .snap-body { padding: 2rem; }
+
+  .snap-score-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+
+  .snap-score-num {
+    font-family: 'Instrument Serif', serif;
+    font-size: 5rem;
+    font-weight: 400;
+    line-height: 1;
+    color: var(--accent);
+  }
+
+  .snap-score-meta { flex: 1; min-width: 200px; }
+
+  .snap-score-meta .out-of {
+    font-size: 13px;
+    color: var(--ink-light);
+    margin-bottom: 4px;
+  }
+
+  .snap-score-meta .risk-label {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+
+  .snap-sections { display: flex; flex-direction: column; gap: 1.75rem; }
+
+  .snap-section h4 {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    margin-bottom: 0.75rem;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .snap-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+
+  .snap-list li {
+    font-size: 14px;
+    color: var(--ink-mid);
+    padding-left: 20px;
+    position: relative;
+    line-height: 1.5;
+  }
+
+  .snap-list li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--ink-xlight);
+  }
+
+  .snap-list.good li::before { content: '✓'; color: var(--risk-low); }
+  .snap-list.risk li::before { content: '!'; color: var(--risk-high); font-weight: 700; }
+
+  .uncomfortable-box {
+    background: #1a3a2a0a;
+    border-left: 3px solid var(--accent-mid);
+    border-radius: 0 8px 8px 0;
+    padding: 1rem 1.25rem;
+  }
+
+  .uncomfortable-box p {
+    font-size: 15px;
+    color: var(--ink);
+    line-height: 1.6;
+    font-style: italic;
+  }
+
+  .outlook-box {
+    background: var(--risk-high-bg);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+  }
+
+  .outlook-box p {
+    font-size: 14px;
+    color: var(--risk-high);
+    line-height: 1.6;
+  }
+
+  .snap-dim-bars { display: flex; flex-direction: column; gap: 8px; }
+  .snap-dim-row { display: flex; align-items: center; gap: 10px; }
+  .snap-dim-name { font-size: 12px; color: var(--ink-mid); width: 170px; flex-shrink: 0; }
+  .snap-dim-bar-wrap { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+  .snap-dim-bar-fill { height: 100%; border-radius: 3px; background: var(--accent-mid); }
+  .snap-dim-bar-fill.warn { background: var(--risk-high); }
+  .snap-dim-score { font-size: 12px; font-weight: 600; width: 32px; text-align: right; color: var(--ink); flex-shrink: 0; }
+
+  .snap-footer {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 1.25rem 2rem;
+    font-size: 12px;
+    color: var(--ink-light);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .btn-print {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 10px 20px;
+    background: var(--surface-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--ink-mid);
+    transition: all 0.15s;
+    margin-top: 1rem;
+  }
+
+  .btn-print:hover { background: var(--accent-light); border-color: var(--accent-mid); color: var(--accent); }
+
+  @media (max-width: 600px) {
+    .field-grid { grid-template-columns: 1fr; }
+    .field-grid.three { grid-template-columns: 1fr 1fr; }
+    .result-grid { grid-template-columns: 1fr; }
+    .result-card.full { grid-column: auto; }
+    .dim-name { width: 130px; font-size: 11px; }
+    .scale-option + label { width: 34px; height: 34px; font-size: 13px; }
+    .snap-score-num { font-size: 3.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="mode-switcher" id="modeSwitcher">
+  <button class="mode-btn active" onclick="switchMode('form')" id="btn-form">Assessment Form</button>
+  <button class="mode-btn" onclick="switchMode('reveal')" id="btn-reveal">Snapshot Reveal</button>
+  <span class="mode-label">Private Admin Console - Do Not Share</span>
+</nav>
+
+<!-- ================= FORM SCREEN ================= -->
+<div class="screen active" id="screen-form">
+<div class="form-wrap">
+  <div class="form-header">
+    <div class="eyebrow">Organizational Survivability Intelligence</div>
+    <h1>Career Stability<br><em>Assessment</em></h1>
+    <p>Private operator view for testing, manual entry, and internal scoring. Do not share this file with respondents.</p>
+  </div>
+
+  <div class="profile-section">
+    <div class="section-label">Your Profile</div>
+    <div class="field-grid" style="margin-bottom:1rem;">
+      <div class="field">
+        <label>Full Name *</label>
+        <input type="text" id="p-name" placeholder="Your name">
+      </div>
+      <div class="field">
+        <label>Email Address *</label>
+        <input type="email" id="p-email" placeholder="your@email.com">
+      </div>
+    </div>
+    <div class="field-grid three" style="margin-bottom:1rem;">
+      <div class="field">
+        <label>Current Role / Title</label>
+        <input type="text" id="p-role" placeholder="e.g. Senior Manager">
+      </div>
+      <div class="field">
+        <label>Industry</label>
+        <input type="text" id="p-industry" placeholder="e.g. IT Services">
+      </div>
+      <div class="field">
+        <label>Years of Experience</label>
+        <select id="p-exp">
+          <option value="">Select</option>
+          <option>1–3 years</option>
+          <option>4–7 years</option>
+          <option>8–12 years</option>
+          <option>13–18 years</option>
+          <option>19+ years</option>
+        </select>
+      </div>
+    </div>
+    <div class="field-grid" style="margin-bottom:1rem;">
+      <div class="field">
+        <label>Age Band</label>
+        <select id="p-age">
+          <option value="">Select</option>
+          <option>22–28</option>
+          <option>29–35</option>
+          <option>36–42</option>
+          <option>43–50</option>
+          <option>51+</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Country</label>
+        <input type="text" id="p-country" placeholder="e.g. India">
+      </div>
+    </div>
+    <div class="field-grid full">
+      <div class="field">
+        <label>What is your biggest career fear right now?</label>
+        <textarea id="p-fear" placeholder="Be honest. This is private."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dynamic question sections rendered by JS -->
+  <div id="questions-container"></div>
+
+  <div class="submit-row">
+    <button class="btn-submit" onclick="submitForm()">Submit Assessment</button>
+    <span class="submit-note">Your responses are confidential</span>
+  </div>
+  <div class="error-msg" id="form-error">Please answer all 25 questions before submitting.</div>
+</div>
+</div>
+
+<!-- ================= THANK YOU SCREEN ================= -->
+<div class="screen" id="screen-thanks">
+<div class="thankyou-wrap">
+  <div class="thankyou-icon">
+    <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+    </svg>
+  </div>
+  <h2>Assessment submitted.</h2>
+  <p>Thank you for completing this. Your responses have been recorded and are being reviewed.</p>
+  <p>You will receive your <strong>Career Stability Snapshot</strong> - a personalized analysis of your organizational survivability - within 48 hours.</p>
+  <p style="margin-top:1.5rem; font-size:13px; color:var(--ink-light);">Watch for an email from us. The snapshot will include your score, dominant risk pattern, and three immediate actions.</p>
+</div>
+</div>
+
+<!-- ================= ADMIN RESULT SCREEN ================= -->
+<div class="screen" id="screen-admin">
+<div class="admin-wrap">
+  <div class="admin-header">
+    <div>
+      <h2 id="admin-name-header">Assessment Result</h2>
+      <p id="admin-sub-header">Submitted assessment - internal view</p>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn-copy" onclick="copyResult()">Copy Full Result</button>
+      <button class="btn-copy" onclick="downloadResultJson()">Download JSON</button>
+      <button class="btn-copy" onclick="downloadResultCsv()">Download CSV</button>
+      <button class="btn-copy" onclick="saveResultLocally()">Save Locally</button>
+      <button class="btn-copy" onclick="exportSavedCsv()">Export Saved CSV</button>
+      <button class="btn-copy" onclick="backToForm()">New Assessment</button>
+    </div>
+  </div>
+
+  <div class="result-grid">
+    <div class="result-card">
+      <div class="rc-label">Total Score</div>
+      <div class="score-big" id="res-total-score">—</div>
+      <div class="rc-sub">out of 125</div>
+    </div>
+    <div class="result-card">
+      <div class="rc-label">Risk Category</div>
+      <div class="rc-value" id="res-risk-label">—</div>
+      <div id="res-risk-badge"></div>
+    </div>
+    <div class="result-card full">
+      <div class="rc-label">Dominant Pattern</div>
+      <div class="rc-value" id="res-pattern">—</div>
+      <div class="rc-sub" id="res-pattern-sub">—</div>
+    </div>
+  </div>
+
+  <div class="result-card" style="margin-bottom:1rem;">
+    <div class="rc-label" style="margin-bottom:1rem;">Dimension Scores</div>
+    <div class="dim-bars" id="dim-bars-container"></div>
+  </div>
+
+  <div class="result-card full" style="margin-bottom:1rem;">
+    <div class="rc-label" style="margin-bottom:1rem;">All 25 Question Answers</div>
+    <table class="answers-table" id="answers-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Question</th>
+          <th>Section</th>
+          <th>Score</th>
+        </tr>
+      </thead>
+      <tbody id="answers-body"></tbody>
+    </table>
+  </div>
+
+  <div class="result-card full">
+    <div class="rc-label" style="margin-bottom:0.75rem;">Profile Info</div>
+    <div id="profile-display" style="font-size:14px;color:var(--ink-mid);line-height:2;"></div>
+  </div>
+</div>
+</div>
+
+<!-- ================= REVEAL / SNAPSHOT SCREEN ================= -->
+<div class="screen" id="screen-reveal">
+<div class="reveal-wrap">
+  <div class="reveal-header">
+    <h2>Career Stability Snapshot</h2>
+    <p>Paste the Raw JSON from your Google Sheet response row, or import a downloaded JSON file, then generate the client-facing snapshot for your second follow-up.</p>
+  </div>
+
+  <div class="admin-loader">
+    <label>Load latest Google Sheet responses</label>
+    <input type="password" id="admin-token" placeholder="Enter admin token from Apps Script">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:0.8rem;">
+      <button class="btn-copy" onclick="loadSheetResponses()">Load Latest Responses</button>
+      <button class="btn-copy" onclick="useSelectedResponse()">Use Selected Response</button>
+    </div>
+    <select id="response-select">
+      <option value="">No responses loaded</option>
+    </select>
+    <div class="loader-status" id="loader-status">This uses the Raw JSON column from your Google Sheet.</div>
+  </div>
+
+  <div class="paste-area">
+    <label>Paste Raw JSON from Google Sheet</label>
+    <textarea id="paste-input" placeholder='Paste the Raw JSON cell from the Responses sheet, or import the downloaded JSON file.'></textarea>
+  </div>
+
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem;">
+    <button class="btn-generate" onclick="generateSnapshot()">Generate Snapshot</button>
+    <label class="btn-copy" style="display:inline-flex;align-items:center;cursor:pointer;">
+      Import JSON
+      <input type="file" accept=".json,application/json" onchange="importResultJson(event)" style="display:none;">
+    </label>
+  </div>
+
+  <div id="snapshot-error" style="color:var(--risk-high);font-size:13px;margin-bottom:1rem;display:none;">Could not parse the result. Please ensure you copied the full result from the admin view.</div>
+
+  <div class="snapshot-doc" id="snapshot-doc">
+    <div class="snap-topbar">
+      <div class="snap-eyebrow">Organizational Survivability Intelligence</div>
+      <h2 id="snap-name">Career Stability Snapshot</h2>
+      <div class="snap-meta" id="snap-meta">—</div>
+    </div>
+    <div class="snap-body">
+      <div class="snap-score-row">
+        <div class="snap-score-num" id="snap-score">—</div>
+        <div class="snap-score-meta">
+          <div class="out-of">out of 125</div>
+          <div class="risk-label" id="snap-risk-label">—</div>
+          <div id="snap-risk-badge-2"></div>
+        </div>
+        <div style="flex:1;min-width:160px;">
+          <div style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-light);margin-bottom:8px;">Dominant Pattern</div>
+          <div style="font-size:15px;font-weight:600;color:var(--ink);" id="snap-pattern">—</div>
+        </div>
+      </div>
+
+      <div class="snap-sections">
+        <div class="snap-section">
+          <h4>Dimension Scores</h4>
+          <div class="snap-dim-bars" id="snap-dim-bars"></div>
+        </div>
+
+        <div class="snap-section">
+          <h4>Top 3 Hidden Risks</h4>
+          <ul class="snap-list risk" id="snap-risks"></ul>
+        </div>
+
+        <div class="snap-section">
+          <h4>What Is Working In Your Favour</h4>
+          <ul class="snap-list good" id="snap-strengths"></ul>
+        </div>
+
+        <div class="snap-section">
+          <h4>One Uncomfortable Observation</h4>
+          <div class="uncomfortable-box">
+            <p id="snap-observation">—</p>
+          </div>
+        </div>
+
+        <div class="snap-section">
+          <h4>Immediate 30-Day Actions</h4>
+          <ul class="snap-list" id="snap-actions"></ul>
+        </div>
+
+        <div class="snap-section">
+          <h4>Long-Term Risk Outlook</h4>
+          <div class="outlook-box">
+            <p id="snap-outlook">—</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="snap-footer">
+      <span id="snap-footer-name">—</span>
+      <span id="snap-footer-date">—</span>
+    </div>
+  </div>
+
+  <div id="snap-actions-row" style="display:none;margin-top:1rem;display:none;gap:8px;flex-wrap:wrap;">
+    <button class="btn-print" onclick="window.print()">Print / Save as PDF</button>
+    <button class="btn-copy" onclick="copySnapshot()">Copy Snapshot Text</button>
+    <button class="btn-copy" onclick="downloadSnapshotText()">Download Snapshot .txt</button>
+  </div>
+</div>
+</div>
+
+<script>
+const QUESTIONS = [
+  { id:'q1',  section:'Organizational Visibility', text:'Senior stakeholders beyond my immediate manager understand the value I bring.', reverse:false },
+  { id:'q2',  section:'Organizational Visibility', text:'If my manager leaves tomorrow, my position remains stable.', reverse:false },
+  { id:'q3',  section:'Organizational Visibility', text:'My work is connected to measurable business outcomes, not just operational activity.', reverse:false },
+  { id:'q4',  section:'Market Survivability', text:'I could realistically secure interviews externally within 60 days.', reverse:false },
+  { id:'q5',  section:'Market Survivability', text:'My current skills are still in strong demand outside my organisation.', reverse:false },
+  { id:'q6',  section:'Market Survivability', text:'I can clearly explain my business value in under 2 minutes.', reverse:false },
+  { id:'q7',  section:'AI Exposure', text:'A meaningful portion of my work can already be automated using AI tools.', reverse:true },
+  { id:'q8',  section:'AI Exposure', text:'My role requires judgment, influence, trust, or ambiguity handling that AI cannot easily replace.', reverse:false },
+  { id:'q9',  section:'AI Exposure', text:'I actively understand how AI is changing my profession.', reverse:false },
+  { id:'q10', section:'Internal Political Capital', text:'There are influential people inside my organisation who would advocate for me if required.', reverse:false },
+  { id:'q11', section:'Internal Political Capital', text:'My performance narrative is shaped by more than one person.', reverse:false },
+  { id:'q12', section:'Internal Political Capital', text:'I understand the informal power structure inside my organisation.', reverse:false },
+  { id:'q13', section:'Performance & Positioning', text:'My actual contribution is accurately recognised during evaluations.', reverse:false },
+  { id:'q14', section:'Performance & Positioning', text:'I proactively communicate impact, not just effort.', reverse:false },
+  { id:'q15', section:'Performance & Positioning', text:'My role is seen as difficult to replace internally.', reverse:false },
+  { id:'q16', section:'Career Optionality', text:'I have at least 2 realistic career paths available to me today.', reverse:false },
+  { id:'q17', section:'Career Optionality', text:'My professional network could meaningfully help me during a job transition.', reverse:false },
+  { id:'q18', section:'Career Optionality', text:'I am building career assets beyond my current employer (writing, certifications, visibility, reputation).', reverse:false },
+  { id:'q19', section:'Financial Resilience', text:'I can sustain myself financially for at least 6 months without income.', reverse:false },
+  { id:'q20', section:'Financial Resilience', text:'My financial obligations force me to tolerate unhealthy work situations.', reverse:true },
+  { id:'q21', section:'Emotional & Psychological State', text:'I constantly feel uncertain about my long-term career stability.', reverse:true },
+  { id:'q22', section:'Emotional & Psychological State', text:'I feel emotionally exhausted trying to remain "relevant."', reverse:true },
+  { id:'q23', section:'Emotional & Psychological State', text:'I believe my current career direction is sustainable for the next 5 years.', reverse:false },
+  { id:'q24', section:'Strategic Relevance', text:'My role contributes directly to revenue, growth, transformation, or strategic execution.', reverse:false },
+  { id:'q25', section:'Strategic Relevance', text:'If economic pressure increased tomorrow, my role would likely survive the first wave of cuts.', reverse:false }
+];
+
+const SECTIONS = [...new Set(QUESTIONS.map(q => q.section))];
+const SECTION_ICONS = ['1','2','3','4','5','6','7','8','9'];
+
+const SCALE_LABELS = ['Strongly Disagree','Disagree','Neutral','Agree','Strongly Agree'];
+
+let currentResult = null;
+const STORAGE_KEY = 'career_stability_saved_results_v1';
+const SUBMISSION_ENDPOINT = 'https://script.google.com/macros/s/AKfycbyOFDjCHQkqGMYXV66iIxg3mncJiITOchdZDhsvGOB87s2HmP-8PWNWPVERTcituKkDvA/exec';
+let loadedSheetRows = [];
+
+function buildForm() {
+  const container = document.getElementById('questions-container');
+  let html = '';
+  SECTIONS.forEach((sec, si) => {
+    const qs = QUESTIONS.filter(q => q.section === sec);
+    html += `<div class="q-section">
+      <div class="q-section-header">
+        <div class="section-num">${si+1}</div>
+        <h3>${sec}</h3>
+      </div>`;
+    qs.forEach((q, qi) => {
+      const globalIdx = QUESTIONS.indexOf(q) + 1;
+      const reverseFlag = q.reverse ? '<span class="risk-flag">Reverse</span>' : '';
+      html += `<div class="question-card">
+        <div class="q-num">Q${globalIdx}${reverseFlag}</div>
+        <div class="q-text">${q.text}</div>
+        <div class="scale-labels"><span>Strongly Disagree</span><span>Strongly Agree</span></div>
+        <div class="scale-row">`;
+      for (let v = 1; v <= 5; v++) {
+        html += `<input type="radio" class="scale-option" name="${q.id}" id="${q.id}_${v}" value="${v}">
+          <label for="${q.id}_${v}">${v}</label>`;
+      }
+      html += `</div></div>`;
+    });
+    html += `</div>`;
+  });
+  container.innerHTML = html;
+}
+
+function getAnswers() {
+  const answers = {};
+  let allAnswered = true;
+  QUESTIONS.forEach(q => {
+    const selected = document.querySelector(`input[name="${q.id}"]:checked`);
+    if (selected) {
+      answers[q.id] = parseInt(selected.value);
+    } else {
+      allAnswered = false;
+    }
+  });
+  return allAnswered ? answers : null;
+}
+
+function computeScore(answers) {
+  let total = 0;
+  const dimScores = {};
+  QUESTIONS.forEach(q => {
+    const raw = answers[q.id];
+    const effective = q.reverse ? (6 - raw) : raw;
+    total += effective;
+    if (!dimScores[q.section]) dimScores[q.section] = { sum: 0, count: 0, max: 0 };
+    dimScores[q.section].sum += effective;
+    dimScores[q.section].count += 1;
+    dimScores[q.section].max += 5;
+  });
+  return { total, dimScores };
+}
+
+function getRiskCategory(total) {
+  if (total >= 90) return { label: 'Stable — Needs Positioning', cls: 'risk-stable-badge' };
+  if (total >= 70) return { label: 'Moderate Hidden Risk', cls: 'risk-med-badge' };
+  if (total >= 50) return { label: 'Significant Career Exposure', cls: 'risk-low-badge' };
+  return { label: 'High Instability Zone', cls: 'risk-high-badge' };
+}
+
+function detectPattern(answers) {
+  const a = answers;
+  // Pattern 1: Technically Strong But Politically Weak
+  if (a.q5 >= 4 && (a.q10 <= 2 || a.q11 <= 2 || a.q12 <= 2 || a.q14 <= 2)) {
+    return { name: 'Technically Strong But Politically Weak', desc: 'High capability, weak organizational survivability. Very common in India.' };
+  }
+  // Pattern 2: Manager Dependency Trap
+  if (a.q2 <= 2 && a.q10 <= 2 && a.q11 <= 2) {
+    return { name: 'Manager Dependency Trap', desc: 'Career survival tied to one manager. Organizationally fragile.' };
+  }
+  // Pattern 3: AI-Commodifiable Contributor
+  if (a.q7 >= 4 && a.q8 <= 2 && a.q9 <= 2) {
+    return { name: 'AI-Commodifiable Contributor', desc: 'Task-based role with high automation vulnerability and low awareness.' };
+  }
+  // Pattern 4: Invisible High Performer
+  if ((a.q4 >= 4 || a.q5 >= 4) && (a.q1 <= 2 || a.q14 <= 2)) {
+    return { name: 'Invisible High Performer', desc: 'Strong capability, low organizational visibility. Classic corporate blind spot.' };
+  }
+  // Pattern 5: Financially Trapped Professional
+  if (a.q19 <= 2 && a.q20 >= 4 && a.q21 >= 4) {
+    return { name: 'Financially Trapped Professional', desc: 'Fear-driven career tolerance. Financial pressure reducing strategic agency.' };
+  }
+  // Default
+  return { name: 'Mixed Exposure Profile', desc: 'No single dominant pattern — multiple moderate risk signals present.' };
+}
+
+function submitForm() {
+  const answers = getAnswers();
+  const errEl = document.getElementById('form-error');
+  if (!answers) {
+    errEl.style.display = 'block';
+    return;
+  }
+  errEl.style.display = 'none';
+
+  const profile = {
+    name: document.getElementById('p-name').value || 'Anonymous',
+    email: document.getElementById('p-email').value || '',
+    role: document.getElementById('p-role').value || '',
+    industry: document.getElementById('p-industry').value || '',
+    exp: document.getElementById('p-exp').value || '',
+    age: document.getElementById('p-age').value || '',
+    country: document.getElementById('p-country').value || '',
+    fear: document.getElementById('p-fear').value || '',
+    submittedAt: new Date().toLocaleString('en-IN', { timeZone:'Asia/Kolkata' })
+  };
+
+  const { total, dimScores } = computeScore(answers);
+  const riskCat = getRiskCategory(total);
+  const pattern = detectPattern(answers);
+
+  currentResult = {
+    submissionId: createSubmissionId(),
+    submittedAt: new Date().toISOString(),
+    profile,
+    answers,
+    total,
+    dimScores,
+    riskCat,
+    pattern
+  };
+
+  showAdminResult(currentResult);
+  submitToBackend(currentResult);
+  switchMode('admin');
+}
+
+function createSubmissionId() {
+  const randomPart = Math.random().toString(36).slice(2, 10).toUpperCase();
+  const timePart = Date.now().toString(36).toUpperCase();
+  return `CSA-${timePart}-${randomPart}`;
+}
+
+function submitToBackend(result) {
+  if (!SUBMISSION_ENDPOINT) return;
+  fetch(SUBMISSION_ENDPOINT, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(result)
+  }).catch(() => {
+    console.warn('Submission endpoint did not accept the response. Use Download JSON/CSV as backup.');
+  });
+}
+
+function showAdminResult(r) {
+  document.getElementById('admin-name-header').textContent = r.profile.name + ' — Assessment Result';
+  document.getElementById('admin-sub-header').textContent = 'Submitted: ' + r.profile.submittedAt;
+  document.getElementById('res-total-score').textContent = r.total;
+  document.getElementById('res-risk-label').textContent = r.riskCat.label;
+  document.getElementById('res-risk-badge').innerHTML = `<span class="risk-badge ${r.riskCat.cls}">${r.riskCat.label}</span>`;
+  document.getElementById('res-pattern').textContent = r.pattern.name;
+  document.getElementById('res-pattern-sub').textContent = r.pattern.desc;
+
+  // Dimension bars
+  const barsContainer = document.getElementById('dim-bars-container');
+  barsContainer.innerHTML = '';
+  SECTIONS.forEach(sec => {
+    const d = r.dimScores[sec];
+    const pct = Math.round((d.sum / d.max) * 100);
+    const isRisk = pct < 50;
+    const row = document.createElement('div');
+    row.className = 'dim-row';
+    row.innerHTML = `<div class="dim-name">${sec}</div>
+      <div class="dim-bar-wrap"><div class="dim-bar-fill ${isRisk?'risk-reverse':''}" style="width:${pct}%"></div></div>
+      <div class="dim-score">${d.sum}/${d.max}</div>`;
+    barsContainer.appendChild(row);
+  });
+
+  // Answers table
+  const tbody = document.getElementById('answers-body');
+  tbody.innerHTML = '';
+  QUESTIONS.forEach((q, i) => {
+    const raw = r.answers[q.id];
+    const effective = q.reverse ? (6 - raw) : raw;
+    const pillCls = q.reverse ? `sp-r${raw}` : `sp-${raw}`;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>Q${i+1}</td>
+      <td>${q.text}${q.reverse ? ' <em style="font-size:11px;color:var(--ink-xlight)">(reverse)</em>' : ''}</td>
+      <td style="font-size:12px;color:var(--ink-light);">${q.section}</td>
+      <td><span class="score-pill ${pillCls}">${raw}</span></td>`;
+    tbody.appendChild(tr);
+  });
+
+  // Profile
+  const p = r.profile;
+  document.getElementById('profile-display').innerHTML = `
+    <strong>Name:</strong> ${p.name} &nbsp;|&nbsp; <strong>Email:</strong> ${p.email}<br>
+    <strong>Role:</strong> ${p.role} &nbsp;|&nbsp; <strong>Industry:</strong> ${p.industry} &nbsp;|&nbsp; <strong>Experience:</strong> ${p.exp}<br>
+    <strong>Age band:</strong> ${p.age} &nbsp;|&nbsp; <strong>Country:</strong> ${p.country}<br>
+    <strong>Biggest fear:</strong> ${p.fear || '—'}
+  `;
+}
+
+function copyResult() {
+  if (!currentResult) return;
+  const text = JSON.stringify(currentResult, null, 2);
+  copyText(text, 'Copy Full Result');
+}
+
+function backToForm() {
+  switchMode('form');
+}
+
+function getSafeFileName(value, fallback) {
+  const clean = String(value || fallback || 'career-stability-result')
+    .trim()
+    .replace(/[^a-z0-9]+/gi, '-')
+    .replace(/^-+|-+$/g, '')
+    .toLowerCase();
+  return clean || fallback || 'career-stability-result';
+}
+
+function downloadBlob(blob, fileName) {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+function csvCell(value) {
+  return `"${String(value ?? '').replace(/"/g, '""')}"`;
+}
+
+function resultToCsv(result) {
+  const headers = [
+    'Submission ID','Submitted At','Name','Email','Role','Industry','Experience','Age Band','Country','Biggest Fear',
+    'Total Score','Risk Category','Dominant Pattern',
+    ...QUESTIONS.map((q, index) => `Q${index + 1}`)
+  ];
+  const row = [
+    result.submissionId || '',
+    result.profile.submittedAt,
+    result.profile.name,
+    result.profile.email,
+    result.profile.role,
+    result.profile.industry,
+    result.profile.exp,
+    result.profile.age,
+    result.profile.country,
+    result.profile.fear,
+    result.total,
+    result.riskCat.label,
+    result.pattern.name,
+    ...QUESTIONS.map(q => result.answers[q.id])
+  ];
+  return `${headers.map(csvCell).join(',')}\n${row.map(csvCell).join(',')}`;
+}
+
+function downloadResultJson() {
+  if (!currentResult) return;
+  const fileName = `${getSafeFileName(currentResult.profile.name)}-career-stability-result.json`;
+  downloadBlob(new Blob([JSON.stringify(currentResult, null, 2)], { type: 'application/json' }), fileName);
+}
+
+function downloadResultCsv() {
+  if (!currentResult) return;
+  const fileName = `${getSafeFileName(currentResult.profile.name)}-career-stability-result.csv`;
+  downloadBlob(new Blob([resultToCsv(currentResult)], { type: 'text/csv' }), fileName);
+}
+
+function getSavedResults() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  } catch(e) {
+    return [];
+  }
+}
+
+function saveResultLocally() {
+  if (!currentResult) return;
+  const saved = getSavedResults();
+  const id = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  saved.unshift({ id, savedAt: new Date().toISOString(), result: currentResult });
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+  alert('Saved in this browser. Use Export Saved CSV to move all saved results into Sheets/Excel.');
+}
+
+function exportSavedCsv() {
+  const saved = getSavedResults();
+  if (!saved.length) {
+    alert('No locally saved results yet.');
+    return;
+  }
+  const csvParts = saved.map(item => resultToCsv(item.result).split('\n')[1]);
+  const header = resultToCsv(saved[0].result).split('\n')[0];
+  downloadBlob(new Blob([[header, ...csvParts].join('\n')], { type: 'text/csv' }), 'career-stability-saved-results.csv');
+}
+
+function copyText(text, originalLabel) {
+  const finish = () => {
+    const buttons = Array.from(document.querySelectorAll('.btn-copy'));
+    const btn = buttons.find(item => item.textContent.trim() === originalLabel);
+    if (!btn) return;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = originalLabel, 1800);
+  };
+
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(finish).catch(() => fallbackCopy(text, finish));
+  } else {
+    fallbackCopy(text, finish);
+  }
+}
+
+function fallbackCopy(text, done) {
+  const area = document.createElement('textarea');
+  area.value = text;
+  area.setAttribute('readonly', '');
+  area.style.position = 'fixed';
+  area.style.left = '-9999px';
+  document.body.appendChild(area);
+  area.select();
+  try { document.execCommand('copy'); } catch(e) {}
+  area.remove();
+  if (done) done();
+}
+
+// ---- SNAPSHOT REVEAL ----
+function generateSnapshot() {
+  const raw = document.getElementById('paste-input').value.trim();
+  const errEl = document.getElementById('snapshot-error');
+  errEl.style.display = 'none';
+
+  let r;
+  try {
+    r = JSON.parse(raw);
+    if (!r.total || !r.pattern || !r.dimScores) throw new Error('Missing fields');
+  } catch(e) {
+    errEl.style.display = 'block';
+    return;
+  }
+
+  buildSnapshotDoc(r);
+}
+
+function importResultJson(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    document.getElementById('paste-input').value = reader.result;
+    generateSnapshot();
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function loadSheetResponses() {
+  const status = document.getElementById('loader-status');
+  const token = document.getElementById('admin-token').value.trim();
+  const select = document.getElementById('response-select');
+  if (!token) {
+    status.textContent = 'Enter the admin token first.';
+    return;
+  }
+
+  status.textContent = 'Loading latest responses...';
+  const callbackName = 'careerSheetCallback_' + Date.now();
+  window[callbackName] = payload => {
+    delete window[callbackName];
+    script.remove();
+    if (!payload.ok) {
+      status.textContent = payload.error || 'Could not load responses.';
+      return;
+    }
+    loadedSheetRows = payload.rows || [];
+    select.innerHTML = '';
+    if (!loadedSheetRows.length) {
+      select.innerHTML = '<option value="">No responses found</option>';
+      status.textContent = 'No responses found in the sheet.';
+      return;
+    }
+    loadedSheetRows.forEach((row, index) => {
+      const option = document.createElement('option');
+      option.value = String(index);
+      option.textContent = `${row.submittedAt || ''} | ${row.name || 'Unnamed'} | ${row.email || ''} | ${row.totalScore || ''} | ${row.dominantPattern || ''}`;
+      select.appendChild(option);
+    });
+    status.textContent = `Loaded ${loadedSheetRows.length} response(s). Select one and click Use Selected Response.`;
+  };
+
+  const script = document.createElement('script');
+  script.src = `${SUBMISSION_ENDPOINT}?action=list&token=${encodeURIComponent(token)}&callback=${callbackName}`;
+  script.onerror = () => {
+    delete window[callbackName];
+    script.remove();
+    status.textContent = 'Could not reach Apps Script. Check deployment and token.';
+  };
+  document.body.appendChild(script);
+}
+
+function useSelectedResponse() {
+  const status = document.getElementById('loader-status');
+  const select = document.getElementById('response-select');
+  const row = loadedSheetRows[Number(select.value)];
+  if (!row || !row.rawJson) {
+    status.textContent = 'Selected row has no Raw JSON. Redeploy Apps Script and submit a fresh test response.';
+    return;
+  }
+  document.getElementById('paste-input').value = row.rawJson;
+  generateSnapshot();
+  status.textContent = `Snapshot generated for ${row.name || 'selected response'}.`;
+}
+
+function buildSnapshotDoc(r) {
+  const doc = document.getElementById('snapshot-doc');
+  const p = r.profile;
+
+  document.getElementById('snap-name').textContent = (p.name || 'Professional') + ' — Career Stability Snapshot';
+  document.getElementById('snap-meta').textContent = `${p.role || ''}${p.role && p.industry ? ' · ' : ''}${p.industry || ''} · ${p.submittedAt || ''}`;
+  document.getElementById('snap-score').textContent = r.total;
+  document.getElementById('snap-risk-label').textContent = r.riskCat.label;
+  document.getElementById('snap-risk-badge-2').innerHTML = `<span class="risk-badge ${r.riskCat.cls}">${r.riskCat.label}</span>`;
+  document.getElementById('snap-pattern').textContent = r.pattern.name;
+
+  // Dimension bars
+  const snapBars = document.getElementById('snap-dim-bars');
+  snapBars.innerHTML = '';
+  SECTIONS.forEach(sec => {
+    const d = r.dimScores[sec];
+    const pct = Math.round((d.sum / d.max) * 100);
+    const isWarn = pct < 50;
+    const el = document.createElement('div');
+    el.className = 'snap-dim-row';
+    el.innerHTML = `<div class="snap-dim-name">${sec}</div>
+      <div class="snap-dim-bar-wrap"><div class="snap-dim-bar-fill ${isWarn?'warn':''}" style="width:${pct}%"></div></div>
+      <div class="snap-dim-score">${d.sum}/${d.max}</div>`;
+    snapBars.appendChild(el);
+  });
+
+  // Derive insights from scores
+  const a = r.answers;
+  const risks = deriveRisks(a, r.dimScores);
+  const strengths = deriveStrengths(a, r.dimScores);
+  const obs = deriveObservation(r.pattern.name, a);
+  const actions = deriveActions(r.pattern.name, a);
+  const outlook = deriveOutlook(r.total, r.pattern.name);
+
+  const setList = (id, items) => {
+    const el = document.getElementById(id);
+    el.innerHTML = items.map(i => `<li>${i}</li>`).join('');
+  };
+
+  setList('snap-risks', risks.slice(0,3));
+  setList('snap-strengths', strengths.slice(0,3));
+  document.getElementById('snap-observation').textContent = obs;
+  setList('snap-actions', actions.slice(0,3));
+  document.getElementById('snap-outlook').textContent = outlook;
+
+  document.getElementById('snap-footer-name').textContent = p.name || '';
+  document.getElementById('snap-footer-date').textContent = 'Generated: ' + new Date().toLocaleDateString('en-IN');
+
+  doc.classList.add('visible');
+  document.getElementById('snap-actions-row').style.display = 'flex';
+}
+
+function deriveRisks(a, dims) {
+  const risks = [];
+  if (a.q2 <= 2 || a.q11 <= 2) risks.push('High dependency on current manager — single point of career vulnerability');
+  if (a.q1 <= 2) risks.push('Low visibility beyond immediate team — invisible to decision-makers');
+  if (a.q4 <= 2 || a.q5 <= 2) risks.push('Weak external market readiness — resume may not be current');
+  if (a.q7 >= 4 && a.q8 <= 2) risks.push('Significant AI commodification risk — core tasks automatable');
+  if (a.q10 <= 2 && a.q12 <= 2) risks.push('Politically isolated — few internal advocates, limited power-structure awareness');
+  if (a.q19 <= 2) risks.push('Low financial runway — panic-driven career decisions likely under pressure');
+  if (a.q20 >= 4) risks.push('Financial obligations forcing tolerance of unhealthy work conditions');
+  if (a.q14 <= 2) risks.push('Impact not being communicated — effort visible, value is not');
+  if (risks.length === 0) risks.push('No severe single-point risks identified — moderate composite exposure');
+  return risks;
+}
+
+function deriveStrengths(a, dims) {
+  const strengths = [];
+  if (a.q5 >= 4) strengths.push('Strong domain skills still in market demand');
+  if (a.q8 >= 4) strengths.push('Role requires human judgment — lower AI replacement risk');
+  if (a.q9 >= 4) strengths.push('Active awareness of AI changes in profession');
+  if (a.q3 >= 4) strengths.push('Work connected to measurable business outcomes');
+  if (a.q6 >= 4) strengths.push('Clear ability to articulate business value');
+  if (a.q10 >= 4) strengths.push('Internal advocates present — political capital exists');
+  if (a.q19 >= 4) strengths.push('Financial resilience — 6+ months runway available');
+  if (a.q24 >= 4) strengths.push('Role directly tied to strategic execution or revenue');
+  if (strengths.length === 0) strengths.push('Execution capability and organizational familiarity');
+  return strengths;
+}
+
+function deriveObservation(pattern, a) {
+  const map = {
+    'Technically Strong But Politically Weak': 'Your career is currently protected by skill, not by relationships. That works — until a reorg, a manager change, or a budget cycle. Skill without visibility is a risk that compounds quietly.',
+    'Manager Dependency Trap': 'Your career stability is not really yours — it belongs to one person. When that relationship changes, so does your position. This is not a small risk. It is an architectural flaw.',
+    'AI-Commodifiable Contributor': 'A significant portion of what you do today can be done faster and cheaper by AI within 2–3 years. The question is whether you are building toward roles that require judgment — or staying in roles that reward execution.',
+    'Invisible High Performer': 'You are doing the work but not shaping the narrative around it. In most organisations, the person who communicates impact well is more protected than the person who delivers it quietly.',
+    'Financially Trapped Professional': 'Your financial situation is driving your career decisions more than your strategic intent. This is not a career problem — it is a leverage problem. Until you change the financial constraint, the career constraint will persist.',
+    'Mixed Exposure Profile': 'Your career currently has no catastrophic single risk — but several moderate risks operating simultaneously. The danger is that none of them feel urgent enough to act on. That is exactly when compounding begins.'
+  };
+  return map[pattern] || 'Your career stability appears more dependent on organizational familiarity than external market competitiveness.';
+}
+
+function deriveActions(pattern, a) {
+  const base = [
+    'Identify 2 senior stakeholders beyond your manager and create one visibility moment with each in the next 30 days',
+    'Write a 3-bullet "business impact" summary of your last 6 months — share it where it can be seen',
+    'Update your LinkedIn and reach out to 3 external contacts in your field'
+  ];
+  const map = {
+    'Manager Dependency Trap': [
+      'Map 2 other senior leaders who understand your work — begin building that relationship now',
+      'Create a deliverable that gets presented to someone above your manager this month',
+      'Activate your external network now — before you need it'
+    ],
+    'Technically Strong But Politically Weak': [
+      'Create one piece of visible work (presentation, write-up, project update) seen by someone outside your team',
+      'Spend 15 minutes per week on informal conversations with politically connected colleagues',
+      'Make your business impact explicit in the next evaluation cycle — outcomes, not activities'
+    ],
+    'AI-Commodifiable Contributor': [
+      'Identify the judgment-intensive parts of your role and expand into them deliberately',
+      'Complete one credible AI literacy course in the next 60 days',
+      'Position yourself as the person who uses AI, not the person AI replaces'
+    ]
+  };
+  return map[pattern] || base;
+}
+
+function deriveOutlook(total, pattern) {
+  if (total >= 90) return 'Current stability is real but not self-reinforcing. Without active positioning, this profile gradually weakens. The window to act from strength is now.';
+  if (total >= 70) return 'Current stability appears operational, not strategic. Sustainable only if organizational structure remains unchanged. One significant trigger — reorg, manager exit, budget cut — could expose multiple risks simultaneously.';
+  if (total >= 50) return 'Significant hidden exposure. Current position is more fragile than it feels. Multiple risk vectors are active. Without deliberate intervention in the next 90 days, this trajectory does not improve on its own.';
+  return 'High instability zone. Career decisions are likely being driven by fear rather than strategy. Immediate action required on financial resilience and external market readiness. This is recoverable — but not without deliberate change.';
+}
+
+function copySnapshot() {
+  const r = document.getElementById('snapshot-doc');
+  const text = r.innerText;
+  copyText(text, 'Copy Snapshot Text');
+}
+
+function downloadSnapshotText() {
+  const doc = document.getElementById('snapshot-doc');
+  if (!doc.classList.contains('visible')) return;
+  const name = document.getElementById('snap-footer-name').textContent || 'career-stability-snapshot';
+  downloadBlob(new Blob([doc.innerText], { type: 'text/plain' }), `${getSafeFileName(name)}-snapshot.txt`);
+}
+
+// ---- MODE SWITCHING ----
+function switchMode(mode) {
+  ['form','thanks','admin','reveal'].forEach(m => {
+    document.getElementById('screen-' + m).classList.remove('active');
+  });
+  document.getElementById('screen-' + mode).classList.add('active');
+
+  ['form','reveal'].forEach(m => {
+    const btn = document.getElementById('btn-' + m);
+    if (btn) btn.classList.toggle('active', m === mode || (mode === 'admin' && m === 'form'));
+  });
+}
+
+buildForm();
+</script>
+</body>
+</html>
